@@ -6,8 +6,8 @@ process.env.SUPABASE_URL,
 process.env.SUPABASE_SERVICE_KEY
 );
 
-const CAL_SCOPE = "https://www.google.com/url?q=https://www.googleapis.com/auth/&source=gmail&ust=1787351396034000&sa=E" + "calendar.readonly";
-const CAL_ID = "maywandnasri" + "@" + "https://www.google.com/url?q=http://gmail.com&source=gmail&ust=1787351396034000&sa=E";
+const CAL_SCOPE = "https://www.google.com/url?q=https://www.googleapis.com/auth/&source=gmail&ust=1787351502826000&sa=E" + "calendar.readonly";
+const CAL_ID = "maywandnasri" + "@" + "https://www.google.com/url?q=http://gmail.com&source=gmail&ust=1787351502826000&sa=E";
 
 export default async function handler(req, res) {
 try {
@@ -80,7 +80,7 @@ metadataHeaders: ["From", "Subject", "Date"],
 });
 const headers = msg.data.payload.headers || [];
 const getHeader = (name) => {
-const found = headers.find((h) => https://www.google.com/url?q=http://h.name&source=gmail&ust=1787351396034000&sa=E === name);
+const found = headers.find((h) => h["name"] === name);
 return found ? found.value : "";
 };
 emailData.push({
