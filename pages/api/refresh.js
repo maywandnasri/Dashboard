@@ -6,8 +6,8 @@ process.env.SUPABASE_URL,
 process.env.SUPABASE_SERVICE_KEY
 );
 
-const CAL_SCOPE = "https://www.google.com/url?q=https://www.googleapis.com/auth/&source=gmail&ust=1787347884062000&sa=E" + "calendar.readonly";
-const CAL_ID = "maywandnasri" + "@" + "https://www.google.com/url?q=http://gmail.com&source=gmail&ust=1787347884062000&sa=E";
+const CAL_SCOPE = "https://www.google.com/url?q=https://www.googleapis.com/auth/&source=gmail&ust=1787351007216000&sa=E" + "calendar.readonly";
+const CAL_ID = "maywandnasri" + "@" + "https://www.google.com/url?q=http://gmail.com&source=gmail&ust=1787351007216000&sa=E";
 
 export default async function handler(req, res) {
 try {
@@ -53,12 +53,54 @@ const bankData = [
 { name: "Truist Visa Card 1501", balance: 4587.64, limit: 10500 }
 ];
 
+const oauth2Client = new google.auth.OAuth2(
+process.env.GMAIL_CLIENT_ID,
+process.env.GMAIL_CLIENT_SECRET
+);
+oauth2Client.setCredentials({
+refresh_token: process.env.GMAIL_REFRESH_TOKEN,
+});
+
+const gmail = google.gmail({ version: "v1", auth: oauth2Client });
+
+const listResult = await gmail.users.messages.list({
+userId: "me",
+maxResults: 5,
+});
+
+const messageRefs = listResult.data.messages || [];
+
+const emailData = [];
+for (const ref of messageRefs) {
+const msg = await gmail.users.messages.get({
+userId: "me",
+id: https://www.google.com/url?q=http://ref.id&source=gmail&ust=1787351007216000&sa=E,
+format: "metadata",
+metadataHeaders: ["From", "Subject", "Date"],
+});
+const headers = msg.data.payload.headers || [];
+const getHeader = (name) => {
+const found = headers.find((h) => https://www.google.com/url?q=http://h.name&source=gmail&ust=1787351007216000&sa=E === name);
+return found ? found.value : "";
+};
+emailData.push({
+from: getHeader("From"),
+subject: getHeader("Subject") || "No subject",
+date: getHeader("Date"),
+});
+}
+
 await supabase.from("dashboard_data").insert([
 { data_type: "calendar", payload: calendarData },
 { data_type: "bank", payload: bankData },
+{ data_type: "email", payload: emailData },
 ]);
 
-res.status(200).json({ ok: true, eventCount: calendarData.length });
+res.status(200).json({
+ok: true,
+eventCount: calendarData.length,
+emailCount: emailData.length,
+});
 } catch (err) {
 res.status(500).json({ ok: false, error: err.message });
 }
