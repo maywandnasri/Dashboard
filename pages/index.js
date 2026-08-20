@@ -28,7 +28,7 @@ return (
 <main style={{ background: "#0f0f0f", minHeight: "100vh", color: "white", fontFamily: "sans-serif", padding: "2rem" }}>
 <h1 style={{ fontSize: "2rem", marginBottom: "1.5rem" }}>Maywand Dashboard</h1>
 
-<div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
+<div style={{ display: "flex", gap: "1.5rem", flexWrap: "nowrap", alignItems: "flex-start" }}>
 
 <div style={{ background: "#1a1a1a", borderRadius: "12px", padding: "1.5rem", minWidth: "280px" }}>
 <h2 style={{ color: "#aaa", fontSize: "0.9rem", marginBottom: "1rem", letterSpacing: "0.1em" }}>BANK BALANCES</h2>
