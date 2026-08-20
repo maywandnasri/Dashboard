@@ -22,17 +22,21 @@ headers: {
 "apikey": SUPABASE_SECRET_KEY,
 "Authorization": "Bearer " + SUPABASE_SECRET_KEY,
 "Content-Type": "application/json",
-"Prefer": "return=minimal"
+"Prefer": "return=representation"
 },
 body: JSON.stringify(payload)
 });
 
-if (!response.ok) {
-const errText = await response.text();
-return res.status(500).json({ ok: false, error: errText });
-}
+const responseBody = await response.text();
 
-return res.status(200).json({ ok: true, refreshedAt: new Date().toISOString() });
+return res.status(200).json({
+ok: response.ok,
+status: response.status,
+urlUsed: SUPABASE_URL ? SUPABASE_URL.slice(0, 25) + "..." : "MISSING",
+keyPresent: SUPABASE_SECRET_KEY ? "yes, length " + SUPABASE_SECRET_KEY.length : "MISSING",
+supabaseResponse: responseBody,
+refreshedAt: new Date().toISOString()
+});
 } catch (err) {
 return res.status(500).json({ ok: false, error: String(err) });
 }
