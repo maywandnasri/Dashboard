@@ -25,11 +25,28 @@ return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "n
 };
 
 return (
-<main style={{ background: "#0f0f0f", minHeight: "100vh", color: "white", fontFamily: "sans-serif", padding: "2rem", boxSizing: "border-box", width: "100%" }}>
+<main style={{ background: "#0f0f0f", minHeight: "100vh", color: "white", fontFamily: "sans-serif", padding: "2rem", boxSizing: "border-box" }}>
 <h1 style={{ fontSize: "2rem", marginBottom: "1.5rem" }}>Maywand Dashboard</h1>
 
-<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", width: "100%" }}>
+{/* Calendar - full width on top */}
+<div style={{ background: "#1a1a1a", borderRadius: "12px", padding: "1.5rem", marginBottom: "1.5rem" }}>
+<h2 style={{ color: "#aaa", fontSize: "0.9rem", marginBottom: "1rem", letterSpacing: "0.1em" }}>UPCOMING EVENTS</h2>
+{loading ? <p>Loading...</p> : calendar ? (
+<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "1rem" }}>
+{calendar.events.map((e, i) => (
+<div key={i} style={{ background: "#222", borderRadius: "8px", padding: "0.75rem" }}>
+<p style={{ fontWeight: "bold", marginBottom: "0.3rem" }}>{e.title}</p>
+<p style={{ color: "#888", fontSize: "0.85rem" }}>{formatDate(e.start)}</p>
+<p style={{ color: "#666", fontSize: "0.8rem" }}>{e.allDay ? "All day" : formatTime(e.start)}</p>
+</div>
+))}
+</div>
+) : <p>No data</p>}
+{calendar && <p style={{ color: "#555", fontSize: "0.75rem", marginTop: "1rem" }}>Updated {new Date(calendar.lastUpdated).toLocaleString()}</p>}
+</div>
 
+{/* Bank - below, left-aligned card */}
+<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
 <div style={{ background: "#1a1a1a", borderRadius: "12px", padding: "1.5rem" }}>
 <h2 style={{ color: "#aaa", fontSize: "0.9rem", marginBottom: "1rem", letterSpacing: "0.1em" }}>BANK BALANCES</h2>
 {loading ? <p>Loading...</p> : bank ? (
@@ -41,23 +58,8 @@ return (
 </div>
 ) : <p>No data</p>}
 </div>
-
-<div style={{ background: "#1a1a1a", borderRadius: "12px", padding: "1.5rem" }}>
-<h2 style={{ color: "#aaa", fontSize: "0.9rem", marginBottom: "1rem", letterSpacing: "0.1em" }}>UPCOMING EVENTS</h2>
-{loading ? <p>Loading...</p> : calendar ? (
-<div>
-{calendar.events.map((e, i) => (
-<div key={i} style={{ marginBottom: "0.75rem", paddingBottom: "0.75rem", borderBottom: "1px solid #2a2a2a" }}>
-<p style={{ fontWeight: "bold", marginBottom: "0.2rem" }}>{e.title}</p>
-<p style={{ color: "#888", fontSize: "0.85rem" }}>{formatDate(e.start)} {e.allDay ? "" : "· " + formatTime(e.start)}</p>
-</div>
-))}
-<p style={{ color: "#555", fontSize: "0.75rem", marginTop: "0.5rem" }}>Updated {new Date(calendar.lastUpdated).toLocaleString()}</p>
-</div>
-) : <p>No data</p>}
 </div>
 
-</div>
 </main>
 );
 }
