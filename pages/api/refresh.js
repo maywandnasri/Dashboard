@@ -1,73 +1,61 @@
 import { google } from "googleapis";
+import { createClient } from "@supabase/supabase-js";
 
-const bankData = {
-accounts: [
-{ bank: "OnePay", name: "Checking", type: "checking", balance: 260.75 },
-{ bank: "OnePay", name: "Savings", type: "savings", balance: 4.57 },
-{ bank: "OnePay", name: "Cash Rewards Card", type: "credit", balance: 211.83, limit: 3000 },
-{ bank: "American Express", name: "Blue Cash Everyday", type: "credit", balance: 22.25, limit: 1000 },
-{ bank: "Truist", name: "Checking 0855", type: "checking", balance: 0.55 },
-{ bank: "Truist", name: "Visa Card 1501", type: "credit", balance: 4587.64, limit: 10500 },
-],
-lastUpdated: new Date().toISOString(),
-};
-
-async function getCalendarEvents() {
-const auth = new google.auth.JWT(
-  process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-  null,
-  process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"),
-  ["https://www.googleapis.com/auth/" + "calendar.readonly"]
+const supabase = createClient(
+process.env.SUPABASE_URL,
+process.env.SUPABASE_SERVICE_KEY
 );
 
-const calendar = google.calendar({ version: "v3", auth });["https://www.googleapis.com/auth/" + "calendar.readonly"],const now = new Date();
+export default async function handler(req, res) {
+try {
+const auth = new google.auth.JWT(
+process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+null,
+process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+["https://www.googleapis.com/auth/calendar.readonly"]
+);
+
+const calendar = google.calendar({ version: "v3", auth });
+
+const now = new Date();
 const future = new Date();
 future.setDate(future.getDate() + 60);
 
-const res = await calendar.events.list({
-calendarId: "maywandnasri@gmail.com",
+const eventsResult = await calendar.events.list({
+calendarId:"maywandnasri@gmail.com" ,
 timeMin: now.toISOString(),
 timeMax: future.toISOString(),
 singleEvents: true,
 orderBy: "startTime",
-maxResults: 100,
 });
 
-return (res.data.items || []).map((e) => ({
-title: e.summary || "(No title)",
-start: e.start.dateTime || e.start.date,
-allDay: !e.start.dateTime,
-}));
-}
+const items = eventsResult.data.items || [];
 
-export default async function handler(req, res) {
-try {
-const events = await getCalendarEvents();
-const calendarData = {
-events,
-lastUpdated: new Date().toISOString(),
+const calendarData = items.map((ev) => {
+const startRaw = ev.start.dateTime || ev.start.date;
+const isAllDay = !ev.start.dateTime;
+return {
+title: ev.summary || "Untitled event",
+start: startRaw,
+allDay: isAllDay,
 };
-
-const supabaseUrl = process.env.SUPABASE_URL + "/rest/v1/dashboard_data";
-const headers = {
-"Content-Type": "application/json",
-apikey: process.env.SUPABASE_SECRET_KEY,
-Authorization: "Bearer " + process.env.SUPABASE_SECRET_KEY,
-};
-
-await fetch(supabaseUrl, {
-method: "POST",
-headers,
-body: JSON.stringify({ data_type: "bank", data: bankData }),
 });
 
-await fetch(supabaseUrl, {
-method: "POST",
-headers,
-body: JSON.stringify({ data_type: "calendar", data: calendarData }),
-});
+const bankData = [
+{ name: "OnePay Checking", balance: 260.75 },
+{ name: "OnePay Savings", balance: 4.57 },
+{ name: "OnePay Cash Rewards Card", balance: 211.83, limit: 3000 },
+{ name: "Amex Blue Cash Everyday", balance: 22.25, limit: 1000 },
+{ name: "Truist Checking 0855", balance: 0.55 },
+{ name: "Truist Visa Card 1501", balance: 4587.64, limit: 10500 }
+];
 
-res.status(200).json({ ok: true, eventCount: events.length });
+await supabase.from("dashboard_data").insert([
+{ data_type: "calendar", payload: calendarData },
+{ data_type: "bank", payload: bankData },
+]);
+
+res.status(200).json({ ok: true, eventCount: calendarData.length });
 } catch (err) {
 res.status(500).json({ ok: false, error: err.message });
 }
