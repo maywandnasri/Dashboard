@@ -13,34 +13,3 @@
 "react-dom": "18.3.1"
 }
 }
-----------------------------------------
-
-FILE 2 - name it exactly: vercel.json
-----------------------------------------
-{
-"crons": [
-{
-"path": "/api/refresh",
-"schedule": "*/10 * * * *"
-}
-]
-}
-----------------------------------------
-
-FILE 3 - name it exactly: pages/index.js
-----------------------------------------
-export default function Home() {
-return (
-<div style={{background:"#1a1a1e", color:"#e8e8ea", minHeight:"100vh", padding:20, fontFamily:"sans-serif"}}>
-<h1>Maywand Dashboard - Live Build in Progress</h1>
-<p>Scheduled refresh is active. Next step: connect real data sources.</p>
-</div>
-);
-}
-----------------------------------------
-
-FILE 4 - name it exactly: pages/api/refresh.js
-----------------------------------------
-export default async function handler(req, res) {
-res.status(200).json({ refreshedAt: new Date().toISOString() });
-}
