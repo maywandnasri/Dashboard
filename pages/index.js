@@ -87,7 +87,7 @@ return (
 <h2 style={{ color: "#aaa", fontSize: "0.9rem", marginBottom: "1rem", letterSpacing: "0.1em" }}>{bankName.toUpperCase()}</h2>
 {accounts.map((a, i) => (
 <p key={i} style={{ marginBottom: "0.5rem" }}>
-{https://www.google.com/url?q=http://a.name&source=gmail&ust=1787343125448000&sa=E}: ${a.balance}{a.limit ? " / $" + a.limit : ""}
+{a.name}: ${a.balance}{a.limit ? " / $" + a.limit : ""}
 </p>
 ))}
 </div>
