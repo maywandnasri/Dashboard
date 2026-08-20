@@ -71,3 +71,25 @@ dayEvents.map((e, j) => (
 );
 })}
 </div>
+)}
+{calendar && <p style={{ color: "#555", fontSize: "0.75rem", marginTop: "1rem" }}>Updated {new Date(calendar.lastUpdated).toLocaleString()}</p>}
+</div>
+
+{/* Bank - below */}
+<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
+<div style={{ background: "#1a1a1a", borderRadius: "12px", padding: "1.5rem" }}>
+<h2 style={{ color: "#aaa", fontSize: "0.9rem", marginBottom: "1rem", letterSpacing: "0.1em" }}>BANK BALANCES</h2>
+{loading ? <p>Loading...</p> : bank ? (
+<div>
+<p style={{ marginBottom: "0.5rem" }}>Checking: ${bank.checking}</p>
+<p style={{ marginBottom: "0.5rem" }}>Savings: ${bank.savings}</p>
+<p style={{ marginBottom: "0.5rem" }}>Credit Card: ${bank.creditCardOwed} / ${bank.creditLimit}</p>
+<p style={{ color: "#555", fontSize: "0.75rem", marginTop: "1rem" }}>Updated {new Date(bank.lastUpdated).toLocaleString()}</p>
+</div>
+) : <p>No data</p>}
+</div>
+</div>
+
+</main>
+);
+}
