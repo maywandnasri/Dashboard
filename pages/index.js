@@ -40,11 +40,12 @@ if (!iso || !iso.includes("T")) return "All day";
 return new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
 };
 
+const formatMoney = (n) => "$" + n;
+
 return (
 <main style={{ background: "#0f0f0f", minHeight: "100vh", color: "white", fontFamily: "sans-serif", padding: "2rem", boxSizing: "border-box" }}>
 <h1 style={{ fontSize: "2rem", marginBottom: "1.5rem" }}>Maywand Dashboard</h1>
 
-{/* Calendar - 7 day strip, full width on top */}
 <div style={{ background: "#1a1a1a", borderRadius: "12px", padding: "1.5rem", marginBottom: "1.5rem" }}>
 <h2 style={{ color: "#aaa", fontSize: "0.9rem", marginBottom: "1rem", letterSpacing: "0.1em" }}>UPCOMING EVENTS</h2>
 {loading ? <p>Loading...</p> : (
@@ -74,8 +75,7 @@ dayEvents.map((e, j) => (
 {calendar && <p style={{ color: "#555", fontSize: "0.75rem", marginTop: "1rem" }}>Updated {new Date(calendar.lastUpdated).toLocaleString()}</p>}
 </div>
 
-{/* Bank accounts - one card per bank */}
-<div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem" }}>
+<div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", maxWidth: "500px" }}>
 {loading ? (
 <p>Loading...</p>
 ) : bank ? (
@@ -87,7 +87,7 @@ return (
 <h2 style={{ color: "#aaa", fontSize: "0.9rem", marginBottom: "1rem", letterSpacing: "0.1em" }}>{bankName.toUpperCase()}</h2>
 {accounts.map((a, i) => (
 <p key={i} style={{ marginBottom: "0.5rem" }}>
-{a.name}: ${a.balance}{a.limit ? " / $" + a.limit : ""}
+{https://www.google.com/url?q=http://a.name&source=gmail&ust=1787343683458000&sa=E}: {formatMoney(a.balance)}{a.limit ? " / " + formatMoney(a.limit) : ""}
 </p>
 ))}
 </div>
