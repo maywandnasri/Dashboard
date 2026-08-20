@@ -2,48 +2,62 @@ export default async function handler(req, res) {
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY;
 
-const headers = {
-"apikey": SUPABASE_SECRET_KEY,
-"Authorization": "Bearer " + SUPABASE_SECRET_KEY,
-"Content-Type": "application/json",
-"Prefer": "return=minimal"
-};
-
-try {
-const bankSummary = {
-checking: 260.75,
-savings: 4.57,
-creditCardOwed: 211.83,
-creditLimit: 3000,
+const bankData = {
+accounts: [
+{ bank: "OnePay", name: "Checking", type: "checking", balance: 260.75 },
+{ bank: "OnePay", name: "Savings", type: "checking", balance: 4.57 },
+{ bank: "OnePay", name: "Cash Rewards Card", type: "credit_card", balance: 211.83, limit: 3000 },
+{ bank: "American Express", name: "Blue Cash Everyday", type: "credit_card", balance: 22.25, limit: 1000 },
+{ bank: "Truist", name: "Checking 0855", type: "checking", balance: 0.55 },
+{ bank: "Truist", name: "Visa Card 1501", type: "credit_card", balance: 4587.64, limit: 10500 }
+],
 lastUpdated: new Date().toISOString()
 };
 
-const calendarEvents = [
-{ title: "Jummah Prayer", start: "2026-08-21T14:00:00-04:00", end: "2026-08-21T15:00:00-04:00" },
-{ title: "Work", start: "2026-08-23T07:45:00-04:00", end: "2026-08-23T18:15:00-04:00" },
-{ title: "Mason payment due", start: "2026-08-24", end: "2026-08-24", allDay: true },
-{ title: "Going to UVA", start: "2026-08-25", end: "2026-08-25", allDay: true },
-{ title: "Work", start: "2026-08-24T07:45:00-04:00", end: "2026-08-24T18:15:00-04:00" },
-{ title: "Work", start: "2026-08-25T07:45:00-04:00", end: "2026-08-25T18:15:00-04:00" },
-{ title: "Work", start: "2026-08-26T07:45:00-04:00", end: "2026-08-26T18:15:00-04:00" },
-{ title: "Jummah Prayer", start: "2026-08-28T14:00:00-04:00", end: "2026-08-28T15:00:00-04:00" },
-{ title: "Work", start: "2026-08-30T07:45:00-04:00", end: "2026-08-30T18:15:00-04:00" }
-];
+const calendarData = {
+events: [
+{ title: "Jummah Prayer", start: "2026-08-21T14:00:00-04:00", allDay: false },
+{ title: "Work", start: "2026-08-23T07:45:00-04:00", allDay: false },
+{ title: "Work", start: "2026-08-24T07:45:00-04:00", allDay: false },
+{ title: "Mason payment due", start: "2026-08-24T00:00:00-04:00", allDay: true },
+{ title: "Going to UVA", start: "2026-08-25T00:00:00-04:00", allDay: true },
+{ title: "Work", start: "2026-08-25T07:45:00-04:00", allDay: false },
+{ title: "Work", start: "2026-08-26T07:45:00-04:00", allDay: false },
+{ title: "Jummah Prayer", start: "2026-08-28T14:00:00-04:00", allDay: false },
+{ title: "Work", start: "2026-08-30T07:45:00-04:00", allDay: false }
+],
+lastUpdated: new Date().toISOString()
+};
 
-await fetch(SUPABASE_URL + "/rest/v1/dashboard_data", {
+try {
+const bankRes = await fetch(SUPABASE_URL + "/rest/v1/dashboard_data", {
 method: "POST",
-headers,
-body: JSON.stringify({ data_type: "bank", content: bankSummary })
+headers: {
+"Content-Type": "application/json",
+"apikey": SUPABASE_SECRET_KEY,
+"Authorization": "Bearer " + SUPABASE_SECRET_KEY,
+"Prefer": "return=representation"
+},
+body: JSON.stringify({ data_type: "bank", content: bankData })
 });
 
-await fetch(SUPABASE_URL + "/rest/v1/dashboard_data", {
+const calendarRes = await fetch(SUPABASE_URL + "/rest/v1/dashboard_data", {
 method: "POST",
-headers,
-body: JSON.stringify({ data_type: "calendar", content: { events: calendarEvents, lastUpdated: new Date().toISOString() } })
+headers: {
+"Content-Type": "application/json",
+"apikey": SUPABASE_SECRET_KEY,
+"Authorization": "Bearer " + SUPABASE_SECRET_KEY,
+"Prefer": "return=representation"
+},
+body: JSON.stringify({ data_type: "calendar", content: calendarData })
 });
 
-return res.status(200).json({ ok: true, refreshedAt: new Date().toISOString() });
+res.status(200).json({
+ok: true,
+bankStatus: bankRes.status,
+calendarStatus: calendarRes.status
+});
 } catch (err) {
-return res.status(500).json({ ok: false, error: String(err) });
+res.status(500).json({ error: err.message });
 }
 }
