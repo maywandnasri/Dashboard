@@ -94,14 +94,14 @@ return (
 onClick={() => setWeekOffset(weekOffset - 1)}
 style={{ background: "#222", color: "white", border: "none", borderRadius: "6px", padding: "0.4rem 0.8rem", cursor: "pointer", fontSize: "1rem" }}
 >
-<-
+{"<-"}
 </button>
 <h2 style={{ color: "#aaa", fontSize: "0.9rem", letterSpacing: "0.1em", margin: 0 }}>UPCOMING EVENTS</h2>
 <button
 onClick={() => setWeekOffset(weekOffset + 1)}
 style={{ background: "#222", color: "white", border: "none", borderRadius: "6px", padding: "0.4rem 0.8rem", cursor: "pointer", fontSize: "1rem" }}
 >
-->
+{"->"}
 </button>
 </div>
 {loading ? <p>Loading...</p> : (
