@@ -14,52 +14,60 @@ fetch("/api/data")
 const bank = data?.bank;
 const calendar = data?.calendar;
 
+// Build 7 days starting today
+const days = [];
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+for (let i = 0; i < 7; i++) {
+const d = new Date(today);
+d.setDate(today.getDate() + i);
+days.push(d);
+}
+
+const eventsForDay = (day) => {
+if (!calendar?.events) return [];
+return calendar.events.filter((e) => {
+const eDate = new Date(e.start);
+return (
+eDate.getFullYear() === day.getFullYear() &&
+eDate.getMonth() === day.getMonth() &&
+eDate.getDate() === day.getDate()
+);
+});
+};
+
 const formatTime = (iso) => {
 if (!iso || !iso.includes("T")) return "All day";
 return new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
-};
-
-const formatDate = (iso) => {
-const d = new Date(iso);
-return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
 };
 
 return (
 <main style={{ background: "#0f0f0f", minHeight: "100vh", color: "white", fontFamily: "sans-serif", padding: "2rem", boxSizing: "border-box" }}>
 <h1 style={{ fontSize: "2rem", marginBottom: "1.5rem" }}>Maywand Dashboard</h1>
 
-{/* Calendar - full width on top */}
+{/* Calendar - 7 day strip, full width on top */}
 <div style={{ background: "#1a1a1a", borderRadius: "12px", padding: "1.5rem", marginBottom: "1.5rem" }}>
 <h2 style={{ color: "#aaa", fontSize: "0.9rem", marginBottom: "1rem", letterSpacing: "0.1em" }}>UPCOMING EVENTS</h2>
-{loading ? <p>Loading...</p> : calendar ? (
-<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "1rem" }}>
-{calendar.events.map((e, i) => (
-<div key={i} style={{ background: "#222", borderRadius: "8px", padding: "0.75rem" }}>
-<p style={{ fontWeight: "bold", marginBottom: "0.3rem" }}>{e.title}</p>
-<p style={{ color: "#888", fontSize: "0.85rem" }}>{formatDate(e.start)}</p>
-<p style={{ color: "#666", fontSize: "0.8rem" }}>{e.allDay ? "All day" : formatTime(e.start)}</p>
+{loading ? <p>Loading...</p> : (
+<div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "0.75rem" }}>
+{days.map((day, i) => {
+const dayEvents = eventsForDay(day);
+return (
+<div key={i} style={{ background: "#222", borderRadius: "8px", padding: "0.6rem", minHeight: "100px" }}>
+<p style={{ fontSize: "0.75rem", color: "#888", marginBottom: "0.5rem", fontWeight: "bold" }}>
+{day.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}
+</p>
+{dayEvents.length === 0 ? (
+<p style={{ fontSize: "0.75rem", color: "#555" }}>-</p>
+) : (
+dayEvents.map((e, j) => (
+<div key={j} style={{ marginBottom: "0.4rem" }}>
+<p style={{ fontSize: "0.8rem", fontWeight: "bold" }}>{e.title}</p>
+<p style={{ fontSize: "0.7rem", color: "#777" }}>{e.allDay ? "All day" : formatTime(e.start)}</p>
 </div>
-))}
+))
+)}
 </div>
-) : <p>No data</p>}
-{calendar && <p style={{ color: "#555", fontSize: "0.75rem", marginTop: "1rem" }}>Updated {new Date(calendar.lastUpdated).toLocaleString()}</p>}
-</div>
-
-{/* Bank - below, left-aligned card */}
-<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
-<div style={{ background: "#1a1a1a", borderRadius: "12px", padding: "1.5rem" }}>
-<h2 style={{ color: "#aaa", fontSize: "0.9rem", marginBottom: "1rem", letterSpacing: "0.1em" }}>BANK BALANCES</h2>
-{loading ? <p>Loading...</p> : bank ? (
-<div>
-<p style={{ marginBottom: "0.5rem" }}>Checking: ${bank.checking}</p>
-<p style={{ marginBottom: "0.5rem" }}>Savings: ${bank.savings}</p>
-<p style={{ marginBottom: "0.5rem" }}>Credit Card: ${bank.creditCardOwed} / ${bank.creditLimit}</p>
-<p style={{ color: "#555", fontSize: "0.75rem", marginTop: "1rem" }}>Updated {new Date(bank.lastUpdated).toLocaleString()}</p>
-</div>
-) : <p>No data</p>}
-</div>
-</div>
-
-</main>
 );
-}
+})}
+</div>
