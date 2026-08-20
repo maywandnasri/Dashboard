@@ -6,13 +6,16 @@ process.env.SUPABASE_URL,
 process.env.SUPABASE_SERVICE_KEY
 );
 
+const CAL_SCOPE = "https://www.google.com/url?q=https://www.googleapis.com/auth/&source=gmail&ust=1787347884062000&sa=E" + "calendar.readonly";
+const CAL_ID = "maywandnasri" + "@" + "https://www.google.com/url?q=http://gmail.com&source=gmail&ust=1787347884062000&sa=E";
+
 export default async function handler(req, res) {
 try {
 const auth = new google.auth.JWT(
 process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
 null,
 process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"),
-["https://www.googleapis.com/auth/calendar.readonly"]
+[CAL_SCOPE]
 );
 
 const calendar = google.calendar({ version: "v3", auth });
@@ -22,7 +25,7 @@ const future = new Date();
 future.setDate(future.getDate() + 60);
 
 const eventsResult = await calendar.events.list({
-calendarId:"maywandnasri@gmail.com" ,
+calendarId: CAL_ID,
 timeMin: now.toISOString(),
 timeMax: future.toISOString(),
 singleEvents: true,
