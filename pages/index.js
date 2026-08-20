@@ -25,12 +25,12 @@ return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "n
 };
 
 return (
-<main style={{ background: "#0f0f0f", minHeight: "100vh", color: "white", fontFamily: "sans-serif", padding: "2rem" }}>
+<main style={{ background: "#0f0f0f", minHeight: "100vh", color: "white", fontFamily: "sans-serif", padding: "2rem", boxSizing: "border-box", width: "100%" }}>
 <h1 style={{ fontSize: "2rem", marginBottom: "1.5rem" }}>Maywand Dashboard</h1>
 
-<div style={{ display: "flex", gap: "1.5rem", flexWrap: "nowrap", alignItems: "flex-start" }}>
+<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", width: "100%" }}>
 
-<div style={{ background: "#1a1a1a", borderRadius: "12px", padding: "1.5rem", minWidth: "280px" }}>
+<div style={{ background: "#1a1a1a", borderRadius: "12px", padding: "1.5rem" }}>
 <h2 style={{ color: "#aaa", fontSize: "0.9rem", marginBottom: "1rem", letterSpacing: "0.1em" }}>BANK BALANCES</h2>
 {loading ? <p>Loading...</p> : bank ? (
 <div>
@@ -42,7 +42,7 @@ return (
 ) : <p>No data</p>}
 </div>
 
-<div style={{ background: "#1a1a1a", borderRadius: "12px", padding: "1.5rem", minWidth: "320px" }}>
+<div style={{ background: "#1a1a1a", borderRadius: "12px", padding: "1.5rem" }}>
 <h2 style={{ color: "#aaa", fontSize: "0.9rem", marginBottom: "1rem", letterSpacing: "0.1em" }}>UPCOMING EVENTS</h2>
 {loading ? <p>Loading...</p> : calendar ? (
 <div>
