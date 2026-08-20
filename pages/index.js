@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 
 export default function Home() {
@@ -14,7 +15,6 @@ fetch("/api/data")
 const bank = data?.bank;
 const calendar = data?.calendar;
 
-// Build 7 days starting today
 const days = [];
 const today = new Date();
 today.setHours(0, 0, 0, 0);
@@ -75,20 +75,30 @@ dayEvents.map((e, j) => (
 {calendar && <p style={{ color: "#555", fontSize: "0.75rem", marginTop: "1rem" }}>Updated {new Date(calendar.lastUpdated).toLocaleString()}</p>}
 </div>
 
-{/* Bank - below */}
-<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
-<div style={{ background: "#1a1a1a", borderRadius: "12px", padding: "1.5rem" }}>
-<h2 style={{ color: "#aaa", fontSize: "0.9rem", marginBottom: "1rem", letterSpacing: "0.1em" }}>BANK BALANCES</h2>
-{loading ? <p>Loading...</p> : bank ? (
-<div>
-<p style={{ marginBottom: "0.5rem" }}>Checking: ${bank.checking}</p>
-<p style={{ marginBottom: "0.5rem" }}>Savings: ${bank.savings}</p>
-<p style={{ marginBottom: "0.5rem" }}>Credit Card: ${bank.creditCardOwed} / ${bank.creditLimit}</p>
-<p style={{ color: "#555", fontSize: "0.75rem", marginTop: "1rem" }}>Updated {new Date(bank.lastUpdated).toLocaleString()}</p>
+{/* Bank accounts - one card per bank */}
+<div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem" }}>
+{loading ? (
+<p>Loading...</p>
+) : bank ? (
+["OnePay", "American Express", "Truist"].map((bankName) => {
+const accounts = bank.accounts.filter((a) => a.bank === bankName);
+if (accounts.length === 0) return null;
+return (
+<div key={bankName} style={{ background: "#1a1a1a", borderRadius: "12px", padding: "1.5rem" }}>
+<h2 style={{ color: "#aaa", fontSize: "0.9rem", marginBottom: "1rem", letterSpacing: "0.1em" }}>{bankName.toUpperCase()}</h2>
+{accounts.map((a, i) => (
+<p key={i} style={{ marginBottom: "0.5rem" }}>
+{https://www.google.com/url?q=http://a.name&source=gmail&ust=1787343125448000&sa=E}: ${a.balance}{a.limit ? " / $" + a.limit : ""}
+</p>
+))}
 </div>
-) : <p>No data</p>}
+);
+})
+) : (
+<p>No data</p>
+)}
 </div>
-</div>
+{bank && <p style={{ color: "#555", fontSize: "0.75rem", marginTop: "1rem" }}>Updated {new Date(bank.lastUpdated).toLocaleString()}</p>}
 
 </main>
 );
