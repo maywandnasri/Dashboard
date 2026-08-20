@@ -36,6 +36,7 @@ const REMINDERS = [
 export default function Home() {
 const [data, setData] = useState(null);
 const [loading, setLoading] = useState(true);
+const [weekOffset, setWeekOffset] = useState(0);
 
 useEffect(() => {
 fetch("/api/data")
@@ -51,11 +52,12 @@ const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0,
 const todayReminder = REMINDERS[dayOfYear % REMINDERS.length];
 
 const days = [];
-const today = new Date();
-today.setHours(0, 0, 0, 0);
+const base = new Date();
+base.setHours(0, 0, 0, 0);
+base.setDate(base.getDate() + weekOffset * 7);
 for (let i = 0; i < 7; i++) {
-const d = new Date(today);
-d.setDate(today.getDate() + i);
+const d = new Date(base);
+d.setDate(base.getDate() + i);
 days.push(d);
 }
 
@@ -87,7 +89,21 @@ return (
 </div>
 
 <div style={{ background: "#1a1a1a", borderRadius: "12px", padding: "1.5rem", marginBottom: "1.5rem" }}>
-<h2 style={{ color: "#aaa", fontSize: "0.9rem", marginBottom: "1rem", letterSpacing: "0.1em" }}>UPCOMING EVENTS</h2>
+<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+<button
+onClick={() => setWeekOffset(weekOffset - 1)}
+style={{ background: "#222", color: "white", border: "none", borderRadius: "6px", padding: "0.4rem 0.8rem", cursor: "pointer", fontSize: "1rem" }}
+>
+<-
+</button>
+<h2 style={{ color: "#aaa", fontSize: "0.9rem", letterSpacing: "0.1em", margin: 0 }}>UPCOMING EVENTS</h2>
+<button
+onClick={() => setWeekOffset(weekOffset + 1)}
+style={{ background: "#222", color: "white", border: "none", borderRadius: "6px", padding: "0.4rem 0.8rem", cursor: "pointer", fontSize: "1rem" }}
+>
+->
+</button>
+</div>
 {loading ? <p>Loading...</p> : (
 <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "0.75rem" }}>
 {days.map((day, i) => {
