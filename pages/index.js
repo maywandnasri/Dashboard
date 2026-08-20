@@ -1,37 +1,62 @@
 import { useEffect, useState } from "react";
 
 export default function Home() {
-const [bankData, setBankData] = useState(null);
+const [data, setData] = useState(null);
 const [loading, setLoading] = useState(true);
 
 useEffect(() => {
 fetch("/api/data")
 .then((r) => r.json())
-.then((d) => {
-setBankData(d.bank);
-setLoading(false);
-})
+.then((d) => { setData(d); setLoading(false); })
 .catch(() => setLoading(false));
 }, []);
 
+const bank = data?.bank;
+const calendar = data?.calendar;
+
+const formatTime = (iso) => {
+if (!iso || !iso.includes("T")) return "All day";
+return new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+};
+
+const formatDate = (iso) => {
+const d = new Date(iso);
+return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+};
+
 return (
 <main style={{ background: "#0f0f0f", minHeight: "100vh", color: "white", fontFamily: "sans-serif", padding: "2rem" }}>
-<h1 style={{ fontSize: "2rem", marginBottom: "1rem" }}>Maywand Dashboard</h1>
+<h1 style={{ fontSize: "2rem", marginBottom: "1.5rem" }}>Maywand Dashboard</h1>
 
-<div style={{ background: "#1a1a1a", borderRadius: "12px", padding: "1.5rem", maxWidth: "400px" }}>
-<h2 style={{ color: "#aaa", fontSize: "1rem", marginBottom: "1rem" }}>BANK BALANCES</h2>
-{loading ? (
-<p>Loading...</p>
-) : bankData ? (
+<div style={{ display: "flex", gap: "1.5rem", flexWrap: "wrap" }}>
+
+<div style={{ background: "#1a1a1a", borderRadius: "12px", padding: "1.5rem", minWidth: "280px" }}>
+<h2 style={{ color: "#aaa", fontSize: "0.9rem", marginBottom: "1rem", letterSpacing: "0.1em" }}>BANK BALANCES</h2>
+{loading ? <p>Loading...</p> : bank ? (
 <div>
-<p>Checking: ${bankData.checking}</p>
-<p>Savings: ${bankData.savings}</p>
-<p>Credit Card Owed: ${bankData.creditCardOwed} / ${bankData.creditLimit}</p>
-<p style={{ color: "#555", fontSize: "0.8rem", marginTop: "1rem" }}>Last updated: {new Date(bankData.lastUpdated).toLocaleString()}</p>
+<p style={{ marginBottom: "0.5rem" }}>Checking: ${bank.checking}</p>
+<p style={{ marginBottom: "0.5rem" }}>Savings: ${bank.savings}</p>
+<p style={{ marginBottom: "0.5rem" }}>Credit Card: ${bank.creditCardOwed} / ${bank.creditLimit}</p>
+<p style={{ color: "#555", fontSize: "0.75rem", marginTop: "1rem" }}>Updated {new Date(bank.lastUpdated).toLocaleString()}</p>
 </div>
-) : (
-<p>No data yet. Hit /api/refresh first.</p>
-)}
+) : <p>No data</p>}
+</div>
+
+<div style={{ background: "#1a1a1a", borderRadius: "12px", padding: "1.5rem", minWidth: "320px" }}>
+<h2 style={{ color: "#aaa", fontSize: "0.9rem", marginBottom: "1rem", letterSpacing: "0.1em" }}>UPCOMING EVENTS</h2>
+{loading ? <p>Loading...</p> : calendar ? (
+<div>
+{calendar.events.map((e, i) => (
+<div key={i} style={{ marginBottom: "0.75rem", paddingBottom: "0.75rem", borderBottom: "1px solid #2a2a2a" }}>
+<p style={{ fontWeight: "bold", marginBottom: "0.2rem" }}>{e.title}</p>
+<p style={{ color: "#888", fontSize: "0.85rem" }}>{formatDate(e.start)} {e.allDay ? "" : "· " + formatTime(e.start)}</p>
+</div>
+))}
+<p style={{ color: "#555", fontSize: "0.75rem", marginTop: "0.5rem" }}>Updated {new Date(calendar.lastUpdated).toLocaleString()}</p>
+</div>
+) : <p>No data</p>}
+</div>
+
 </div>
 </main>
 );
