@@ -6,10 +6,24 @@ process.env.SUPABASE_URL,
 process.env.SUPABASE_SERVICE_KEY
 );
 
-const CAL_SCOPE = "https://www.google.com/url?q=https://www.googleapis.com/auth/&source=gmail&ust=1787351502826000&sa=E" + "calendar.readonly";
-const CAL_ID = "maywandnasri" + "@" + "https://www.google.com/url?q=http://gmail.com&source=gmail&ust=1787351502826000&sa=E";
+const CAL_SCOPE = "https://www.google.com/url?q=https://www.googleapis.com/auth/&source=gmail&ust=1787351831393000&sa=E" + "calendar.readonly";
+const CAL_ID = "maywandnasri" + "@" + "https://www.google.com/url?q=http://gmail.com&source=gmail&ust=1787351831393000&sa=E";
 
 export default async function handler(req, res) {
+const bankData = [
+{ name: "OnePay Checking", balance: 260.75 },
+{ name: "OnePay Savings", balance: 4.57 },
+{ name: "OnePay Cash Rewards Card", balance: 211.83, limit: 3000 },
+{ name: "Amex Blue Cash Everyday", balance: 22.25, limit: 1000 },
+{ name: "Truist Checking 0855", balance: 0.55 },
+{ name: "Truist Visa Card 1501", balance: 4587.64, limit: 10500 }
+];
+
+let calendarData = [];
+let calendarError = null;
+let emailData = [];
+let emailError = null;
+
 try {
 const auth = new google.auth.JWT(
 process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
@@ -34,7 +48,7 @@ orderBy: "startTime",
 
 const items = eventsResult.data.items || [];
 
-const calendarData = items.map((ev) => {
+calendarData = items.map((ev) => {
 const startRaw = ev.start.dateTime || ev.start.date;
 const isAllDay = !ev.start.dateTime;
 return {
@@ -43,16 +57,11 @@ start: startRaw,
 allDay: isAllDay,
 };
 });
+} catch (err) {
+calendarError = "CALENDAR: " + err.message;
+}
 
-const bankData = [
-{ name: "OnePay Checking", balance: 260.75 },
-{ name: "OnePay Savings", balance: 4.57 },
-{ name: "OnePay Cash Rewards Card", balance: 211.83, limit: 3000 },
-{ name: "Amex Blue Cash Everyday", balance: 22.25, limit: 1000 },
-{ name: "Truist Checking 0855", balance: 0.55 },
-{ name: "Truist Visa Card 1501", balance: 4587.64, limit: 10500 }
-];
-
+try {
 const oauth2Client = new google.auth.OAuth2(
 process.env.GMAIL_CLIENT_ID,
 process.env.GMAIL_CLIENT_SECRET
@@ -70,7 +79,6 @@ maxResults: 5,
 
 const messageRefs = listResult.data.messages || [];
 
-const emailData = [];
 for (const ref of messageRefs) {
 const msg = await gmail.users.messages.get({
 userId: "me",
@@ -89,19 +97,25 @@ subject: getHeader("Subject") || "No subject",
 date: getHeader("Date"),
 });
 }
+} catch (err) {
+emailError = "EMAIL: " + err.message;
+}
 
+try {
 await supabase.from("dashboard_data").insert([
 { data_type: "calendar", payload: calendarData },
 { data_type: "bank", payload: bankData },
 { data_type: "email", payload: emailData },
 ]);
+} catch (err) {
+return res.status(500).json({ ok: false, error: "SUPABASE: " + err.message });
+}
 
 res.status(200).json({
 ok: true,
 eventCount: calendarData.length,
 emailCount: emailData.length,
+calendarError: calendarError,
+emailError: emailError,
 });
-} catch (err) {
-res.status(500).json({ ok: false, error: err.message });
-}
 }
